@@ -19,9 +19,17 @@ alphabet = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" ++ ['a'..'z'] ++ ['A'..'Z']
 
 --allPosPass = [ c : s | s <- "" : allPosPass, c <- alphabet] -- returns ALL possible passwords
 
-{-checkPass
-let bString = LSU.fromString pass
-let hash = B16.encode $ SHA1.hashlazy bString --lookup for base 16 stuff-}
+checkPass :: String -> SSU.ByteString -> Bool
+checkPass pass hash = let bString = SSU.fromString pass
+                          assumpt = SHA1.hash bString
+                      in if assumpt == hash then True else False
+
+solveSeq1 :: SSU.ByteString -> [String] -> Maybe String
+solveSeq1 _ [] = Nothing
+solveSeq1 hash (str:strs) = if (checkPass str hash) then Just str else solveSeq1 hash strs
+
+--solveSeq :: SSU.ByteString -> [String] -> [String]
+
 
 passOfLen n 
   | n == 0    = "":[]
@@ -36,6 +44,9 @@ main = do
   putStrLn "Please insert your SHA-1 and I will return your password"
   hash <- getLine
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
-  print hashBS
+  --let passwordSolve = solveSeq hashBS $ passOfLenNM 2
+  let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM 4
+  --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve
+  if null passwordSolve then putStrLn "No" else putStrLn $ "Your password is " ++ (show $ head passwordSolve)
   return ()
 
