@@ -41,12 +41,14 @@ passOfLenNM n
   | otherwise        = passOfLen n ++ (passOfLenNM $ pred n)
 
 main = do
-  putStrLn "Please insert your SHA-1 and I will return your password"
-  hash <- getLine
+  --putStrLn "Please insert your SHA-1 and I will return your password"
+  hash:numberOfChars':_ <- getArgs
+  let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
   --let passwordSolve = solveSeq hashBS $ passOfLenNM 2
-  let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM 4
+  let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM numberOfChars
   --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve
   if null passwordSolve then putStrLn "No" else putStrLn $ "Your password is " ++ (show $ head passwordSolve)
+  --end <- getLine
   return ()
 
