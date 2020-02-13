@@ -48,7 +48,11 @@ main = do
   --let passwordSolve = solveSeq hashBS $ passOfLenNM 2
   let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM numberOfChars
   --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve
-  if null passwordSolve then putStrLn "----------------------FAILURE------------------------" 
+  if null passwordSolve 
+  then do 
+    putStrLn "\n----------------------FAILURE------------------------" 
+    putStrLn "\tWe could not find your password:("
+    putStrLn "----------------------+++++++------------------------\n"
   else do 
     putStrLn "\n----------------------SUCCESS------------------------"
     putStrLn $ "\t\tYour password is " ++ (show $ head passwordSolve)
