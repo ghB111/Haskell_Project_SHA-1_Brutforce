@@ -14,7 +14,8 @@ import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Base16.Lazy as B16L
 
 alphabet :: String
-alphabet = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" ++ ['a'..'z'] ++ ['A'..'Z']
+alphabet = ['a'..'z'] ++ ['A'..'Z']
+--alphabet = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" ++ ['a'..'z'] ++ ['A'..'Z']
 
 --allPosPass = [ c : s | s <- "" : allPosPass, c <- alphabet] -- returns ALL possible passwords
 
