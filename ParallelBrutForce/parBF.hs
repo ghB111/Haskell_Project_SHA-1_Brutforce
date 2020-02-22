@@ -39,6 +39,13 @@ parMap f (a:as) = do
   bs <- parMap f as
   return (b:bs)
 
+fastSolveChunks :: SSU.ByteString -> [[[String]]] -> Maybe String
+fastSolveChunks _ [] = Nothing
+fastSolveChunks hashBS (chunk:cs) = 
+  let res' = runEval $ parMap (solveSeq' hashBS) $ chunk
+      res = filter isJust res' in
+  if null res then fastSolveChunks hashBS cs else head res 
+
 passOfLen n 
   | n == 0    = "":[]
   | n == 1    = [ [c] | c <- alphabet]
@@ -55,19 +62,19 @@ main = do
   let chunkSize = round $ 52000000 * chunkSizeMult
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
-  let passwordSolve = runEval $ parMap (solveSeq' hashBS) $ chunksOf chunkSize $ passOfLenNM numberOfChars
+  --let passwordSolve = runEval $ parMap (solveSeq' hashBS) $ map (chunksOf 32)  $ chunksOf (chunkSize / 32 ) $ passOfLenNM numberOfChars
+  let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 32) x) $ chunksOf (chunkSize `div` 32 ) $ passOfLenNM numberOfChars
   return ()
   --let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM numberOfChars
-  --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve
-  let res = filter isJust passwordSolve 
-  if null res
+  --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve 
+  if isNothing res
   then do 
     putStrLn "\n----------------------FAILURE------------------------" 
     putStrLn "\tWe could not find your password:("
     putStrLn "----------------------+++++++------------------------\n"
   else do 
     putStrLn "\n----------------------SUCCESS------------------------"
-    putStrLn $ "\t\tYour password is " ++ (show $ fromJust $ head res)
+    putStrLn $ "\t\tYour password is " ++ (show $ fromJust $ res)
     putStrLn "----------------------+++++++------------------------\n"
   --end <- getLine
   return ()
