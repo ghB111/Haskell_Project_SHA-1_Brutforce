@@ -6,6 +6,6 @@ for /R %%x in (*.hs) do (
 del /Q /S "*.o"
 del /Q /S "*.hi"
 
-for /r %%x in (*.exe) do move "%%x" ".\Compiled"
+for /r %%x in (*.exe) do move "%%x" ".\Compiled\Windows"
 
 popd
