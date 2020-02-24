@@ -9,16 +9,11 @@ import Data.List.Split
 import qualified Data.ByteString.Lazy.UTF8 as LSU
 import qualified Data.ByteString.UTF8 as SSU
 import qualified Data.ByteString.Lazy as LStr
---import Data.ByteString.Conversion
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Base16.Lazy as B16L
 
 alphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9']
-
---main = print $ SHA1.hashlazy (LStr.pack [0..255])
-
---allPosPass = [ c : s | s <- "" : allPosPass, c <- alphabet] -- returns ALL possible passwords
 
 checkPass :: String -> SSU.ByteString -> Bool
 checkPass pass hash = let bString = SSU.fromString pass
@@ -34,10 +29,6 @@ solveSeq _ []            = Nothing
 solveSeq hash (chunk:cs) = let res = solveSeq' hash chunk in
                            if isJust res then res else solveSeq hash cs
 
---splitToChunks :: Int -> [String]
---splitToChunks chunkLen arr
-
-
 passOfLen n 
   | n == 0    = "":[]
   | n == 1    = [ [c] | c <- alphabet]
@@ -48,13 +39,10 @@ passOfLenNM n
   | otherwise        = passOfLen n ++ (passOfLenNM $ pred n)
 
 main = do
-  --putStrLn "Please insert your SHA-1 and I will return your password"
   hash:numberOfChars':_ <- getArgs
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
   let passwordSolve = solveSeq hashBS $ chunksOf 52000000 $ passOfLenNM numberOfChars
-  --let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM numberOfChars
-  --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve
   if isNothing passwordSolve 
   then do 
     putStrLn "\n----------------------FAILURE------------------------" 
@@ -64,6 +52,4 @@ main = do
     putStrLn "\n----------------------SUCCESS------------------------"
     putStrLn $ "\t\tYour password is " ++ (show $ fromJust passwordSolve)
     putStrLn "----------------------+++++++------------------------\n"
-  --end <- getLine
-  return ()
 
