@@ -18,10 +18,10 @@ mv parBF-little.eventlog "$LOGDIR/logs/little/parBF-ALL.eventlog"
 echo "Done"; echo
 
 echo "Testing 2 threads..."
+echo "Test: Parallel on little alpha, password passed: $CODE, hash: \"$hash\"" > "$LOGDIR/logs/little/log2.txt"
+echo "Params: maxPassLen: $LEN, chunk multiplier: $CH"  >> "$LOGDIR/logs/little/log2.txt"
 ./parBF-little $hash $LEN $CH +RTS -s -N2 -ls &>> "$LOGDIR/logs/little/log2.txt"
 mv parBF-little.eventlog "$LOGDIR/logs/little/parBF-2.eventlog"
-cat "Test: Parallel on little alpha, password passed: $CODE, hash: \"$hash\"" "$LOGDIR/logs/little/log2.txt"
-cat "Params: maxPassLen: $LEN, chunk multiplier: $CH"  "$LOGDIR/logs/little/log2.txt"
 echo "Done"; echo
 
 echo "Testing 1 thread..."
