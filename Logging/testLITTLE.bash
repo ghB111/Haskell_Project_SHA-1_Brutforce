@@ -11,16 +11,22 @@ echo "Testing on \"$CODE\", hash \"$hash\""
 mkdir --parents "$LOGDIR/logs/little/"
 
 echo "Testing all threads..."
-./parBF-little $hash $LEN $CH +RTS -s -N -ls &> "$LOGDIR/logs/little/logALL.txt"
+echo "Test: Parallel on little alpha, password passed: $CODE, hash: \"$hash\"" > "$LOGDIR/logs/little/logALL.txt"
+echo "Params: maxPassLen: $LEN, chunk multiplier: $CH" >> "$LOGDIR/logs/little/logALL.txt"
+./parBF-little $hash $LEN $CH +RTS -s -N -ls &>> "$LOGDIR/logs/little/logALL.txt"
 mv parBF-little.eventlog "$LOGDIR/logs/little/parBF-ALL.eventlog"
 echo "Done"; echo
 
 echo "Testing 2 threads..."
-./parBF-little $hash $LEN $CH +RTS -s -N2 -ls &> "$LOGDIR/logs/little/log2.txt"
+./parBF-little $hash $LEN $CH +RTS -s -N2 -ls &>> "$LOGDIR/logs/little/log2.txt"
 mv parBF-little.eventlog "$LOGDIR/logs/little/parBF-2.eventlog"
+cat "Test: Parallel on little alpha, password passed: $CODE, hash: \"$hash\"" "$LOGDIR/logs/little/log2.txt"
+cat "Params: maxPassLen: $LEN, chunk multiplier: $CH"  "$LOGDIR/logs/little/log2.txt"
 echo "Done"; echo
 
 echo "Testing 1 thread..."
-./parBF-little $hash $LEN $CH +RTS -s -N1 -ls &> "$LOGDIR/logs/little/log1.txt"
+echo "Test: Parallel on little alpha, password passed: $CODE, hash: \"$hash\"" > "$LOGDIR/logs/little/log1.txt"
+echo "Params: maxPassLen: $LEN, chunk multiplier: $CH" >> "$LOGDIR/logs/little/log1.txt"
+./parBF-little $hash $LEN $CH +RTS -s -N1 -ls &>> "$LOGDIR/logs/little/log1.txt"
 mv parBF-little.eventlog "$LOGDIR/logs/little/parBF-1.eventlog"
 echo "Done!"; echo
