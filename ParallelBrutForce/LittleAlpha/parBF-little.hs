@@ -34,9 +34,9 @@ parMap f (a:as) = do
 fastSolveChunks :: SSU.ByteString -> [[[String]]] -> Maybe String
 fastSolveChunks _ [] = Nothing
 fastSolveChunks hashBS (chunk:cs) = 
-  let res' = runEval $ parMap (solveSeq' hashBS) $ chunk
+  let res' = map (solveSeq' hashBS) chunk `using` parList rseq
       res = filter isJust res' in
-  if null res then fastSolveChunks hashBS cs else head res 
+  if null res then fastSolveChunks hashBS cs else head res
 
 passOfLen n 
   | n == 0    = "":[]
@@ -45,7 +45,9 @@ passOfLen n
 
 passOfLenNM n
   | n == 0           = passOfLen n
-  | otherwise        = passOfLen n ++ (passOfLenNM $ pred n)
+  | otherwise        = passOfLenNM' n [] 0
+                        where passOfLenNM' n passes i | n < i = passes
+                              passOfLenNM' _ passes i         = passOfLen i ++ passOfLenNM' n passes (succ i)
 
 main = do
   hash:numberOfChars':chunkSizeMult':_ <- getArgs
@@ -53,7 +55,7 @@ main = do
   let chunkSize = round $ 52000000 * chunkSizeMult
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
-  let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 32) x) $ chunksOf (chunkSize `div` 32 ) $ passOfLenNM numberOfChars
+  let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 64) x) $ chunksOf (chunkSize `div` 64 ) $ passOfLenNM numberOfChars
   if isNothing res
   then do 
     putStrLn "\n----------------------FAILURE------------------------" 
