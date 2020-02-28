@@ -24,13 +24,6 @@ solveSeq' :: SSU.ByteString -> [String] -> Maybe String
 solveSeq' _ [] = Nothing
 solveSeq' hash (str:strs) = if (checkPass str hash) then Just str else solveSeq' hash strs
 
-parMap :: NFData b => (a -> b) -> [a] -> Eval [b]
-parMap f [] = return []
-parMap f (a:as) = do
-  b <- (rpar.force) (f a)
-  bs <- parMap f as
-  return (b:bs)
-
 fastSolveChunks :: SSU.ByteString -> [[[String]]] -> Maybe String
 fastSolveChunks _ [] = Nothing
 fastSolveChunks hashBS (chunk:cs) = 
@@ -52,10 +45,11 @@ passOfLenNM n
 main = do
   hash:numberOfChars':chunkSizeMult':_ <- getArgs
   let [(chunkSizeMult, _)] = reads chunkSizeMult' :: [(Float, String)]
-  let chunkSize = round $ 52000000 * chunkSizeMult
+  let chunkSize = round $ 52000000 * chunkSizeMult --14776336
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
-  let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 64) x) $ chunksOf (chunkSize `div` 64 ) $ passOfLenNM numberOfChars
+  --let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 64) x) $ chunksOf (chunkSize `div` 64 ) $ passOfLenNM numberOfChars
+  let res = fastSolveChunks hashBS $ map (\x -> chunksOf ((14776336 `div` 1500) `div` 1500) x) $ chunksOf (14776336 `div` 1500) $ passOfLenNM numberOfChars
   if isNothing res
   then do 
     putStrLn "\n----------------------FAILURE------------------------" 
