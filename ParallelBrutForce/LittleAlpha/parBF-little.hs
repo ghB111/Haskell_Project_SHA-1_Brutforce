@@ -42,14 +42,18 @@ passOfLenNM n
                         where passOfLenNM' n passes i | n < i = passes
                               passOfLenNM' _ passes i         = passOfLen i ++ passOfLenNM' n passes (succ i)
 
+alphLen :: Int -> Int
+alphLen x = (length alphabet)^x
+
 main = do
   hash:numberOfChars':chunkSizeMult':_ <- getArgs
   let [(chunkSizeMult, _)] = reads chunkSizeMult' :: [(Float, String)]
   let chunkSize = round $ 52000000 * chunkSizeMult --14776336
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
+  let aLen = alphLen numberOfChars
   --let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 64) x) $ chunksOf (chunkSize `div` 64 ) $ passOfLenNM numberOfChars
-  let res = fastSolveChunks hashBS $ map (\x -> chunksOf ((14776336 `div` 1500) `div` 1500) x) $ chunksOf (14776336 `div` 1500) $ passOfLenNM numberOfChars
+  let res = fastSolveChunks hashBS $ map (\x -> chunksOf ((aLen `div` 1500) `div` 1500) x) $ chunksOf (aLen `div` 1500) $ passOfLenNM numberOfChars
   if isNothing res
   then do 
     putStrLn "\n----------------------FAILURE------------------------" 
