@@ -6,7 +6,7 @@ CH=$3 #chunk size multiplier
 LOGDIR="$PWD"
 cd "../Compiled/Linux/"
 
-hash=$(./sha1 \"$CODE\")
+hash=$(./sha1 "$CODE")
 echo "Testing on \"$CODE\", hash \"$hash\""
 mkdir --parents "$LOGDIR/logs/little/"
 
