@@ -43,9 +43,7 @@ passOfLenNM n
                               passOfLenNM' _ passes i         = passOfLen i ++ passOfLenNM' n passes (succ i)
 
 main = do
-  hash:numberOfChars':chunkSizeMult':_ <- getArgs
-  let [(chunkSizeMult, _)] = reads chunkSizeMult' :: [(Float, String)]
-  let chunkSize = round $ 52000000 * chunkSizeMult --14776336
+  hash:numberOfChars':_ <- getArgs 
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
   let res = fastSolveChunks hashBS $ map (\x -> chunksOf 20 x) $ chunksOf 9850 $ passOfLenNM numberOfChars

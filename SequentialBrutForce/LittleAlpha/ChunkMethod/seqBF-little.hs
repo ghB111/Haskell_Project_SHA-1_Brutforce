@@ -36,7 +36,9 @@ passOfLen n
 
 passOfLenNM n
   | n == 0           = passOfLen n
-  | otherwise        = passOfLen n ++ (passOfLenNM $ pred n)
+  | otherwise        = passOfLenNM' n [] 0
+                        where passOfLenNM' n passes i | n < i = passes
+                              passOfLenNM' _ passes i         = passOfLen i ++ passOfLenNM' n passes (succ i)
 
 main = do
   hash:numberOfChars':_ <- getArgs
