@@ -9,14 +9,11 @@ import Data.List.Split
 import qualified Data.ByteString.Lazy.UTF8 as LSU
 import qualified Data.ByteString.UTF8 as SSU
 import qualified Data.ByteString.Lazy as LStr
---import Data.ByteString.Conversion
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Base16.Lazy as B16L
 
 alphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9']
-
---allPosPass = [ c : s | s <- "" : allPosPass, c <- alphabet] -- returns ALL possible passwords
 
 checkPass :: String -> SSU.ByteString -> Bool
 checkPass pass hash = let bString = SSU.fromString pass
@@ -27,24 +24,12 @@ solveSeq' :: SSU.ByteString -> [String] -> Maybe String
 solveSeq' _ [] = Nothing
 solveSeq' hash (str:strs) = if (checkPass str hash) then Just str else solveSeq' hash strs
 
-{-solveSeq :: SSU.ByteString -> [[String]] -> Maybe String 
-solveSeq _ []            = Nothing
-solveSeq hash (chunk:cs) = let res = solveSeq' hash chunk in
-                           if isJust res then res else solveSeq hash cs-}
-
-parMap :: NFData b => (a -> b) -> [a] -> Eval [b]
-parMap f [] = return []
-parMap f (a:as) = do
-  b <- rpar (f a)
-  bs <- parMap f as
-  return (b:bs)
-
 fastSolveChunks :: SSU.ByteString -> [[[String]]] -> Maybe String
 fastSolveChunks _ [] = Nothing
 fastSolveChunks hashBS (chunk:cs) = 
-  let res' = runEval $ parMap (solveSeq' hashBS) $ chunk
+  let res' = map (solveSeq' hashBS) chunk `using` parList rseq
       res = filter isJust res' in
-  if null res then fastSolveChunks hashBS cs else head res 
+  if null res then fastSolveChunks hashBS cs else head res
 
 passOfLen n 
   | n == 0    = "":[]
@@ -53,20 +38,15 @@ passOfLen n
 
 passOfLenNM n
   | n == 0           = passOfLen n
-  | otherwise        = passOfLen n ++ (passOfLenNM $ pred n)
+  | otherwise        = passOfLenNM' n [] 0
+                        where passOfLenNM' n passes i | n < i = passes
+                              passOfLenNM' _ passes i         = passOfLen i ++ passOfLenNM' n passes (succ i)
 
 main = do
-  --putStrLn "Please insert your SHA-1 and I will return your password"
-  hash:numberOfChars':chunkSizeMult':_ <- getArgs
-  let [(chunkSizeMult, _)] = reads chunkSizeMult' :: [(Float, String)]
-  let chunkSize = round $ 52000000 * chunkSizeMult
+  hash:numberOfChars':_ <- getArgs 
   let [(numberOfChars,_)] = reads numberOfChars' :: [(Int, String)]
   let (hashBS, _) = (B16.decode.SSU.fromString) hash
-  --let passwordSolve = runEval $ parMap (solveSeq' hashBS) $ map (chunksOf 32)  $ chunksOf (chunkSize / 32 ) $ passOfLenNM numberOfChars
-  let res = fastSolveChunks hashBS $ map (\x -> chunksOf (length x `div` 32) x) $ chunksOf (chunkSize `div` 32 ) $ passOfLenNM numberOfChars
-  return ()
-  --let passwordSolve = filter (\x -> checkPass x hashBS) $ passOfLenNM numberOfChars
-  --if isNothing passwordSolve then putStrLn "Couldn't find a match, sorry!" else putStrLn $ fromJust passwordSolve 
+  let res = fastSolveChunks hashBS $ map (\x -> chunksOf 20 x) $ chunksOf 9850 $ passOfLenNM numberOfChars
   if isNothing res
   then do 
     putStrLn "\n----------------------FAILURE------------------------" 
@@ -76,6 +56,4 @@ main = do
     putStrLn "\n----------------------SUCCESS------------------------"
     putStrLn $ "\t\tYour password is " ++ (show $ fromJust $ res)
     putStrLn "----------------------+++++++------------------------\n"
-  --end <- getLine
-  return ()
 
