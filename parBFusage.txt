@@ -1,5 +1,3 @@
 Применение:
-parBf [your hash] [n | you promise your password is no longer than n] [целое или дробное число*]
+parBf [your hash] [n | you promise your password is no longer than n]
 
-*Для 1 - один chunk будет 52000000, то есть примерно минута обработки одним ядром
-Иначе - 52000000*n
